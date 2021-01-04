@@ -47,6 +47,12 @@
 - [Notes](#notes)
 - [Execute unit tests](#execute-unit-tests)
 
+## 这是一个来自nlohmann/json的fork版本，对该版本进行了一些非标准化处理，使得接口更易使用，我称呼它为`easynlohmannjson`
+
+## Modify
+1. from_json 扩展：获取非当前value类型时，进行显示转换，替换掉原来的assert、throw
+2. 获取不存在key时，const类型，将返回nullvalue对象，非const类型，将插入一个nullvalue对象并返回该对象值。
+
 ## Design goals
 
 There are myriads of [JSON](https://json.org) libraries out there, and each may even have its reason to exist. Our class had these design goals:
