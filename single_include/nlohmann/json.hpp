@@ -3527,6 +3527,11 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
 {
     switch (static_cast<value_t>(j))
     {
+        case value_t::boolean:
+        {
+            val = static_cast<ArithmeticType>((*j.template get_ptr<const typename BasicJsonType::boolean_t*>()) ? 1 : 0);
+            break;
+        }
         case value_t::number_unsigned:
         {
             val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_unsigned_t*>());
@@ -3542,7 +3547,18 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
             val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_float_t*>());
             break;
         }
-
+        case value_t::null:
+        case value_t::object:
+        case value_t::array:
+        {
+            val = static_cast<ArithmeticType>(0.0);
+            break;
+        }
+        case value_t::string:
+        {
+            val = static_cast<ArithmeticType>(std::stoll(*j.template get_ptr<const typename BasicJsonType::string_t*>()));
+            break;
+        }
         default:
             JSON_THROW(type_error::create(302, "type must be number, but is " + std::string(j.type_name())));
     }
@@ -3551,21 +3567,118 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
 template<typename BasicJsonType>
 void from_json(const BasicJsonType& j, typename BasicJsonType::boolean_t& b)
 {
+    switch(static_cast<value_t>(j))
+    {
+        case value_t::boolean:
+        {
+            b = *j.template get_ptr<const typename BasicJsonType::boolean_t*>();
+            break;
+        }
+        case value_t::number_unsigned:
+        {
+            b = (*j.template get_ptr<const typename BasicJsonType::number_unsigned_t*>() != 0)? true: false;
+            break;
+        }
+        case value_t::number_integer:
+        {
+            b = (*j.template get_ptr<const typename BasicJsonType::number_integer_t*>() != 0)? true: false;
+            break;
+        }
+        case value_t::number_float:
+        {
+            b = (*j.template get_ptr<const typename BasicJsonType::number_float_t*>() != 0)? true: false;
+            break;
+        }
+        case value_t::null:
+        {
+            b = false;
+            break;
+        }
+        case value_t::object:
+        {
+            auto obj = j.template get_ptr<const typename BasicJsonType::object_t*>();
+            b = (obj->size() != 0)? true: false;
+            break;
+        }
+        case value_t::array:
+        {
+            auto arr = j.template get_ptr<const typename BasicJsonType::array_t*>();
+            b = (arr->size() != 0)? true: false;
+            break;
+        }
+        case value_t::string:
+        {
+            b = std::stoll(*j.template get_ptr<const typename BasicJsonType::string_t*>()) != 0;
+            break;
+        }
+        default:
+            JSON_THROW(type_error::create(302, "type must be boolean, but is " + std::string(j.type_name())));
+    }
+    
+    /*
     if (JSON_HEDLEY_UNLIKELY(!j.is_boolean()))
     {
         JSON_THROW(type_error::create(302, "type must be boolean, but is " + std::string(j.type_name())));
     }
     b = *j.template get_ptr<const typename BasicJsonType::boolean_t*>();
+    */
 }
 
 template<typename BasicJsonType>
 void from_json(const BasicJsonType& j, typename BasicJsonType::string_t& s)
 {
+    switch(static_cast<value_t>(j))
+    {
+        case value_t::boolean:
+        {
+            s = *j.template get_ptr<const typename BasicJsonType::boolean_t*>()?"true":"false";
+            break;
+        }
+        case value_t::number_unsigned:
+        {
+            s = std::to_string(*j.template get_ptr<const typename BasicJsonType::number_unsigned_t*>());
+            break;
+        }
+        case value_t::number_integer:
+        {
+            s = std::to_string(*j.template get_ptr<const typename BasicJsonType::number_integer_t*>());
+            break;
+        }
+        case value_t::number_float:
+        {
+            s = std::to_string(*j.template get_ptr<const typename BasicJsonType::number_float_t*>());
+            break;
+        }
+        case value_t::null:
+        {
+            s = "null";
+            break;
+        }
+        case value_t::object:
+        {
+            s = "[object]";
+            break;
+        }
+        case value_t::array:
+        {
+            s = "[object Array]";
+            break;
+        }
+        case value_t::string:
+        {
+            s = s = *j.template get_ptr<const typename BasicJsonType::string_t*>();
+            break;
+        }
+        default:
+            JSON_THROW(type_error::create(302, "type must be string, but is " + std::string(j.type_name())));
+    }
+    /*
     if (JSON_HEDLEY_UNLIKELY(!j.is_string()))
     {
         JSON_THROW(type_error::create(302, "type must be string, but is " + std::string(j.type_name())));
     }
     s = *j.template get_ptr<const typename BasicJsonType::string_t*>();
+    */
 }
 
 template <
@@ -3783,6 +3896,11 @@ void from_json(const BasicJsonType& j, ArithmeticType& val)
 {
     switch (static_cast<value_t>(j))
     {
+        case value_t::boolean:
+        {
+            val = static_cast<ArithmeticType>((*j.template get_ptr<const typename BasicJsonType::boolean_t*>()) ? 1 : 0);
+            break;
+        }
         case value_t::number_unsigned:
         {
             val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_unsigned_t*>());
@@ -3798,12 +3916,17 @@ void from_json(const BasicJsonType& j, ArithmeticType& val)
             val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_float_t*>());
             break;
         }
-        case value_t::boolean:
+        case value_t::null:
+        case value_t::object:
+        case value_t::array:
         {
-            val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::boolean_t*>());
+            val = static_cast<ArithmeticType>(0.0);
             break;
         }
-
+        case value_t::string:
+        {
+            val = static_cast<ArithmeticType>(std::stoll(*j.template get_ptr<const typename BasicJsonType::string_t*>()));
+        }
         default:
             JSON_THROW(type_error::create(302, "type must be number, but is " + std::string(j.type_name())));
     }
@@ -16569,6 +16692,8 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
 
     T& at(const Key& key)
     {
+        return emplace(key, T{}).first->second;
+        /*
         for (auto it = this->begin(); it != this->end(); ++it)
         {
             if (it->first == key)
@@ -16576,8 +16701,9 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
                 return it->second;
             }
         }
-
+        
         JSON_THROW(std::out_of_range("key not found"));
+        */
     }
 
     const T& at(const Key& key) const
@@ -16589,8 +16715,9 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
                 return it->second;
             }
         }
-
-        JSON_THROW(std::out_of_range("key not found"));
+        static const T nullvalue{};
+        return nullvalue;
+        //JSON_THROW(std::out_of_range("key not found"));
     }
 
     size_type erase(const Key& key)
@@ -20265,14 +20392,18 @@ class basic_json
     */
     const_reference operator[](const typename object_t::key_type& key) const
     {
+        static const_reference nullvalue{};
         // const operator[] only works for objects
         if (JSON_HEDLEY_LIKELY(is_object()))
         {
-            JSON_ASSERT(m_value.object->find(key) != m_value.object->end());
-            return m_value.object->find(key)->second;
+            //JSON_ASSERT(m_value.object->find(key) != m_value.object->end());
+            if(m_value.object->find(key) != m_value.object->end()){
+                return m_value.object->find(key)->second;
+            }
         }
-
-        JSON_THROW(type_error::create(305, "cannot use operator[] with a string argument with " + std::string(type_name())));
+        
+        return nullvalue;
+        //JSON_THROW(type_error::create(305, "cannot use operator[] with a string argument with " + std::string(type_name())));
     }
 
     /*!
@@ -20357,14 +20488,17 @@ class basic_json
     JSON_HEDLEY_NON_NULL(2)
     const_reference operator[](T* key) const
     {
+        static const_reference nullvalue{};
         // at only works for objects
         if (JSON_HEDLEY_LIKELY(is_object()))
         {
-            JSON_ASSERT(m_value.object->find(key) != m_value.object->end());
-            return m_value.object->find(key)->second;
+            if(m_value.object->find(key) != m_value.object->end()){
+                return m_value.object->find(key)->second;
+            }
         }
-
-        JSON_THROW(type_error::create(305, "cannot use operator[] with a string argument with " + std::string(type_name())));
+        
+        return nullvalue;
+        //JSON_THROW(type_error::create(305, "cannot use operator[] with a string argument with " + std::string(type_name())));
     }
 
     /*!
