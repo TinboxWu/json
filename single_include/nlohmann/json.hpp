@@ -3651,7 +3651,7 @@ void from_json(const BasicJsonType& j, typename BasicJsonType::string_t& s)
         }
         case value_t::null:
         {
-            s = "null";
+            s = "";
             break;
         }
         case value_t::object:
