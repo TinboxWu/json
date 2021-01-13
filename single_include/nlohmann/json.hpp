@@ -3556,7 +3556,7 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
         }
         case value_t::string:
         {
-            val = static_cast<ArithmeticType>(atoi(*j.template get_ptr<const typename BasicJsonType::string_t*>()));
+            val = static_cast<ArithmeticType>(atoi(j.template get_ptr<const typename BasicJsonType::string_t*>()->c_str()));
             break;
         }
         default:
@@ -3608,7 +3608,7 @@ void from_json(const BasicJsonType& j, typename BasicJsonType::boolean_t& b)
         }
         case value_t::string:
         {
-            b = atoi(*j.template get_ptr<const typename BasicJsonType::string_t*>()) != 0;
+            b = atoi(j.template get_ptr<const typename BasicJsonType::string_t*>()->c_str()) != 0;
             break;
         }
         default:
@@ -3925,7 +3925,7 @@ void from_json(const BasicJsonType& j, ArithmeticType& val)
         }
         case value_t::string:
         {
-            val = static_cast<ArithmeticType>(atoi(*j.template get_ptr<const typename BasicJsonType::string_t*>()));
+            val = static_cast<ArithmeticType>(atoi(j.template get_ptr<const typename BasicJsonType::string_t*>()->c_str()));
         }
         default:
             JSON_THROW(type_error::create(302, "type must be number, but is " + std::string(j.type_name())));
